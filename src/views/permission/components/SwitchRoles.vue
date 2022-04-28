@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="margin-bottom:15px;">
-      Your roles: {{ roles }}
+      Your roles: {{ role==0?'admin':'editor' }}
     </div>
     Switch roles:
     <el-radio-group v-model="switchRoles">
@@ -14,12 +14,12 @@
 <script>
 export default {
   computed: {
-    roles() {
-      return this.$store.getters.roles
+    role() {
+      return this.$store.getters.role
     },
     switchRoles: {
       get() {
-        return this.roles[0]
+        return this.role
       },
       set(val) {
         this.$store.dispatch('user/changeRoles', val).then(() => {

@@ -45,64 +45,55 @@
         </el-form-item>
       </el-tooltip>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
 
-      <div style="position:relative">
-        <div class="tips">
-          <span>Username : admin</span>
-          <span>Password : any</span>
-        </div>
-        <div class="tips">
-          <span style="margin-right:18px;">Username : editor</span>
-          <span>Password : any</span>
-        </div>
-
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
-          Or connect with
-        </el-button>
-      </div>
     </el-form>
+    <div class="tips"  style="float:left;">              
+      <el-button type="primary" @click="forgetPass">
+        找回密码
+      </el-button>
+    </div>
+    <div class="tips"  style="float:right;">         
+      <el-button type="primary" @click="toRegister">
+        注册
+      </el-button>            
+    </div>
 
-    <el-dialog title="Or connect with" :visible.sync="showDialog">
-      Can not be simulated on local, so please combine you own business simulation! ! !
-      <br>
-      <br>
-      <br>
-      <social-sign />
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+// import { validUsername } from '@/utils/validate'
 import SocialSign from './components/SocialSignin'
 
 export default {
   name: 'Login',
   components: { SocialSign },
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
-    }
+    // const validateUsername = (rule, value, callback) => {
+    //   if (!validUsername(value)) {
+    //     callback(new Error('Please enter the correct user name'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
+    // const validatePassword = (rule, value, callback) => {
+    //   if (value.length < 6) {
+    //     callback(new Error('The password can not be less than 6 digits'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        // username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        // password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [{ required: true, trigger: 'blur'}],
+        password: [{ required: true, trigger: 'blur'}]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -157,9 +148,19 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+            .then(stateCode => {
+              console.log(stateCode)
+              if(stateCode==1000){
+              // this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              console.log(this.redirect)
+              this.$router.push({ path: this.redirect || '/'})
+              // this.$router.push({ path: '/', query: this.otherQuery })
               this.loading = false
+              }
+              else{
+                alert("登陆失败")
+                this.loading = false
+              }
             })
             .catch(() => {
               this.loading = false
@@ -177,6 +178,14 @@ export default {
         }
         return acc
       }, {})
+    },
+    toRegister(){
+      this.$router.push({path:'/register'})
+    },
+    forgetPass(){
+      // console.log(this.$store.getters.token)
+      // console.log(this.$store.getters.role)
+      this.$router.push({path:'/forgetPass'})
     }
     // afterQRScan() {
     //   if (e.key === 'x-admin-oauth-code') {
@@ -318,6 +327,7 @@ $light_gray:#eee;
   @media only screen and (max-width: 470px) {
     .thirdparty-button {
       display: none;
+      // text-align: right;
     }
   }
 }

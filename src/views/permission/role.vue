@@ -74,7 +74,8 @@ const defaultRole = {
 export default {
   data() {
     return {
-      role: Object.assign({}, defaultRole),
+      // role: Object.assign({}, defaultRole),
+      role: -1,
       routes: [],
       rolesList: [],
       dialogVisible: false,
