@@ -1,10 +1,11 @@
 <template>
-  <div>
-    <el-steps :space="200" :active="active" finish-status="success">
-        <el-step title="身份验证"></el-step>
-        <el-step title="密码重置"></el-step>
-        <el-step title="重置完成"></el-step>
-    </el-steps>
+  <div class="reset-container">
+    <div class="form-container">
+        <el-steps :active="active" finish-status="success" align-center>
+            <el-step title="身份验证"></el-step>
+            <el-step title="密码重置"></el-step>
+            <el-step title="重置完成"></el-step>
+        </el-steps>
     <el-form
       v-if="active!=2"
       :model="form"
@@ -14,12 +15,13 @@
       label-width="100px"
       class="demo-ruleForm"
     >
-        <div v-if="active==0">
+        <div class="form-box" v-if="active==0">
             <el-form-item label="账号" prop="username">
+                <div style="display:flex;justify-content:space-between;">
                 <el-input v-model="form.username" @input="resetType"></el-input>
+                 <el-button class="checkbtm" type="success" :icon="iconType[typeIndex]" @click="checkUsername" circle></el-button>
+                </div>  
             </el-form-item>
-            <el-button type="success" :icon="iconType[typeIndex]" @click="checkUsername" circle></el-button>
-
             <el-form-item label="密码问题">
                 {{form.question}}
             </el-form-item>      
@@ -29,10 +31,10 @@
 
         </div>
 
-        <div v-if="active==1">
+        <div class="form-box" v-if="active==1">
             <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
                 <el-form-item label="密码" prop="password">
-
+                    <div style="display:flex;">
                     <el-input
                     :key="passwordType"
                     ref="password"
@@ -45,9 +47,10 @@
                     @keyup.native="checkCapslock"
                     @blur="capsTooltip = false"
                     />
-                    <span class="show-pwd" @click="showPwd('password')">
-                    <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+                    <span style="margin-left:10px;" @click="showPwd('password')">
+                        <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
                     </span>
+                    </div>
                 </el-form-item>
             </el-tooltip>
 
@@ -66,8 +69,7 @@
                     @blur="capsTooltip = false"
                     @keyup.enter.native="resetPass('form')"
                     />
-                    <span class="show-pwd" @click="showPwd('checkPass')">
-                    </span>
+
                 </el-form-item>
             </el-tooltip>
         </div>
@@ -83,14 +85,14 @@
       </el-form-item>
     </el-form> 
     
-    <div v-if="active==2">
+    <div class="form-box" v-if="active==2">
         <el-result icon="success" title="密码重置成功" subTitle="请返回登录界面">
             <template slot="extra">
                 <el-button type="primary" size="medium" @click="returnLogin">返回</el-button>
             </template>
         </el-result>
     </div>
-
+  </div>
   </div>
 </template>
  
@@ -256,22 +258,37 @@ export default {
 </script>
  
 <style scoped>
-.register-container {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+.reset-container {
+    display:flex;
+    width:100%;
+    height: 100%;
+    margin: auto;
+    overflow-x: hidden;
+    justify-content: center;
+    align-items:center;
 }
-.register-form {
-  width: 350px;
-  margin: 150px auto;
+
+.form-container {
+  border-radius: 20px;
+  border: solid 1px #eee;
+}
+
+.demo-ruleForm {
   background-color: rgba(90, 187, 211, 0.7);
   padding: 30px;
   border-radius: 20px;
 }
-.title-zc {
-  text-align: center;
+
+
+.checkbtm{
+    display:inline-block;
+    margin-left: 5px;
 }
+
+  .show-pwd {
+    margin-left:5px;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
 </style>

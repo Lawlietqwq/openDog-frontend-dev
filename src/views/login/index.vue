@@ -46,19 +46,20 @@
       </el-tooltip>
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+      
+      <div class="tips"  style="float:left;">              
+        <el-button type="primary" @click="forgetPass">
+          忘记密码
+        </el-button>
+      </div>
+
+      <div class="tips"  style="float:right;">         
+        <el-button type="primary" @click="toRegister">
+          注册
+        </el-button>            
+      </div>  
 
     </el-form>
-    <div class="tips"  style="float:left;">              
-      <el-button type="primary" @click="forgetPass">
-        找回密码
-      </el-button>
-    </div>
-    <div class="tips"  style="float:right;">         
-      <el-button type="primary" @click="toRegister">
-        注册
-      </el-button>            
-    </div>
-
   </div>
 </template>
 

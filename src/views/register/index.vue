@@ -1,110 +1,92 @@
 <template>
-  <div>
-    <el-form
-      :model="form"
-      status-icon
-      :rules="rules"
-      ref="form"
-      label-width="100px"
-      class="demo-ruleForm"
-    >
-     <el-form-item label="账号" prop="username">
-        <el-input v-model="form.username"></el-input>
-      </el-form-item>
- 
-      <!-- <el-form-item label="密码" prop="password">
-        <span class="svg-container">
-            <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          ref="password"
-          type="password"
-          v-model="form.password"
-          autocomplete="off"
-          @keyup.native="checkCapslock"
-        ></el-input>
-        <span class="show-pwd" @click="showPwd('password')">
-            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-          </span>
-      </el-form-item>
-      <el-form-item label="确认密码" prop="checkPass">
-        <span class="svg-container">
-            <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          ref="rePassword"
-          type="password"
-          v-model="form.checkPass"
-          autocomplete="off"
-          @keyup.native="checkCapslock"
-        ></el-input>
-        <span class="show-pwd" @click="showPwd('rePassword')">
-            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-          </span>     
-      </el-form-item> -->
-      
-      <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
-        <el-form-item label="密码" prop="password">
-
-          <el-input
-            :key="passwordType"
-            ref="password"
-            v-model="form.password"
-            :type="passwordType"
-            placeholder="Password"
-            name="password"
-            tabindex="2"
-            autocomplete="on"
-            @keyup.native="checkCapslock"
-            @blur="capsTooltip = false"
-            @keyup.enter.native="handleRegister"
-          />
-          <span class="show-pwd" @click="showPwd('password')">
-            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-          </span>
+<el-container style="width:100%;height:100%;justify-content:center;align-items:center;">
+  <el-container class="register-container"> 
+    <el-header style="text-align: right; font-size: 12px">
+      <span style="align-self:flex-end;">
+        <em class="bold">已有账号？</em>
+        <router-link to='/login'>
+            <el-button type="primary" size="mini">登录</el-button>
+        </router-link>
+      </span>
+    </el-header>
+    <el-main>
+      <el-form
+        :model="form"
+        status-icon
+        :rules="rules"
+        ref="form"
+        label-width="100px"
+        class="demo-ruleForm"
+      >
+      <el-form-item label="账号" prop="username">
+          <el-input v-model="form.username"></el-input>
         </el-form-item>
-      </el-tooltip>
-      
-      <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
-        <el-form-item label="确认密码" prop="checkPass">
+        
+        <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
+          <el-form-item label="密码" prop="password">
+            <div style="display:flex;justify-content:space-between;">
+            <el-input
+              :key="passwordType"
+              ref="password"
+              v-model="form.password"
+              :type="passwordType"
+              placeholder="Password"
+              name="password"
+              tabindex="2"
+              autocomplete="on"
+              @keyup.native="checkCapslock"
+              @blur="capsTooltip = false"
+              @keyup.enter.native="handleRegister"
+            />
+            <span style="margin-left:10px;" @click="showPwd('password')">
+              <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+            </span>
+            </div>
+          </el-form-item>
+        </el-tooltip>
+        
+        <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
+          <el-form-item label="确认密码" prop="checkPass">
 
-          <el-input
-            :key="passwordType"
-            ref="checkPass"
-            v-model="form.checkPass"
-            :type="passwordType"
-            placeholder="确认密码"
-            name="checkPass"
-            tabindex="2"
-            autocomplete="on"
-            @keyup.native="checkCapslock"
-            @blur="capsTooltip = false"
-          />
-          <span class="show-pwd" @click="showPwd('checkPass')">
-          </span>
+            <el-input
+              :key="passwordType"
+              ref="checkPass"
+              v-model="form.checkPass"
+              :type="passwordType"
+              placeholder="确认密码"
+              name="checkPass"
+              tabindex="2"
+              autocomplete="on"
+              @keyup.native="checkCapslock"
+              @blur="capsTooltip = false"
+            />
+            <span class="show-pwd" @click="showPwd('checkPass')">
+            </span>
+          </el-form-item>
+        </el-tooltip>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email"></el-input>
+        </el-form-item>   
+
+        <el-form-item label="密码问题" prop="question">
+          <el-input v-model="form.question"></el-input>
+        </el-form-item>      
+
+        <el-form-item label="问题答案" prop="answer">
+          <el-input v-model="form.answer" @keyup.enter.native="handleRegister('form')"></el-input>
+        </el-form-item>  
+
+        <el-form-item>
+          <el-button :loading='loading' type="primary" @click="handleRegister('form')">
+              提交
+          </el-button>
+          <el-button @click="resetForm('form')">重置</el-button>
         </el-form-item>
-      </el-tooltip>
-
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="form.email"></el-input>
-      </el-form-item>   
-
-      <el-form-item label="密码问题" prop="question">
-        <el-input v-model="form.question"></el-input>
-      </el-form-item>      
-
-      <el-form-item label="问题答案" prop="answer">
-        <el-input v-model="form.answer" @keyup.enter.native="handleRegister('form')"></el-input>
-      </el-form-item>  
-
-      <el-form-item>
-        <el-button :loading='loading' type="primary" @click="handleRegister('form')">
-            提交
-        </el-button>
-        <el-button @click="resetForm('form')">重置</el-button>
-      </el-form-item>
-    </el-form>
-  </div>
+      </el-form>
+    </el-main>
+    </el-container>
+  </el-container>
 </template>
  
 <script>
@@ -243,23 +225,28 @@ export default {
 </script>
  
 <style scoped>
-.register-container {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  /* background-image: url("../../assets/4.jpg"); */
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.register-form {
-  width: 350px;
-  margin: 150px auto;
-  background-color: rgba(90, 187, 211, 0.7);
-  padding: 30px;
-  border-radius: 20px;
-}
-.title-zc {
-  text-align: center;
-}
+
+  .el-header {
+    background-color: #B3C0D1;
+    color: #333;
+    line-height: 60px;
+  }
+
+  .register-container {
+    display: flex;
+    justify-content: center;
+    width: 600px;
+    height: 540px;
+    flex:unset;
+    overflow:hidden;
+    border: 1px solid #eee;
+  }
+  .register-form {
+    width: 350px;
+    /* margin: 150px auto; */
+    background-color: rgba(90, 187, 211, 0.7);
+    padding: 30px;
+    border-radius: 20px;
+  }
+
 </style>
