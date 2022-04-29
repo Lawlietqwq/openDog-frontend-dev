@@ -38,7 +38,6 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       userApi.login(JSON.stringify({ username: username.trim(), password: password })).then(response => {
-        console.log('response',response)
         // var response = JSON.parse(response)
         const { data } = response
         // console.log(response)
@@ -49,7 +48,6 @@ const actions = {
         // commit('SET_ROLE', data.user.role)//state更新
         // setToken(data.token)//cookie更新
         }
-        console.log(response)
         resolve(response.state)
       }).catch(error => {
         reject(error)

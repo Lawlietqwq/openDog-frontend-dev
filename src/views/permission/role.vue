@@ -1,6 +1,15 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">New Role</el-button>
+    <el-button type="primary" @click="handleAddRole">新建项目</el-button>
+
+    <el-select v-model="value" placeholder="请选择项目">
+    <el-option
+      v-for="item in options"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value">
+    </el-option>
+  </el-select>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="Role Key" width="220">
