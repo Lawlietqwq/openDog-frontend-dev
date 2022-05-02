@@ -251,6 +251,7 @@ export default {
       })
     },
     returnLogin(){
+        this.$store.dispatch('user/resetToken')
         this.$router.push({path:'/login'})
     }
   },
