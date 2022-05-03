@@ -5,6 +5,7 @@ const state = {
     cid: -1,
     pid: -1,
     projectName: '',
+    caseName:'',
     current_cid:-1,
 }
 
@@ -19,6 +20,10 @@ const mutations = {
 
     SET_PNAME: (state, projectName) => {
         state.projectName = projectName
+    },
+
+    SET_CNAME: (state, caseName) => {
+        state.caseName = caseName
     },
 
     SET_CURRENT_CID: (state, current_cid) => {
@@ -81,7 +86,7 @@ const actions = {
         })
     },
 
-    get_case_data({ commit }, caseId){
+    get_case_data({ commit }, caseId , caseName){
         return new Promise((resolve, reject) => {
             caseAPI.get_case_data(JSON.stringify({caseId:caseId})).then(res => {
                 const stateCode = res.state
@@ -89,9 +94,11 @@ const actions = {
                 if(stateCode==1000){
                     // commit('SET_CID', caseId)
                     // commit('SET_PID', projectId)
+                    commit('SET_CID',caseId)
+                    commit('SET_CNAME',caseName)
                     commit('SET_CURRENT_ID',caseId)
                 }
-                resolve({stateCode:stateCode, data:res.data.success})
+                resolve({stateCode:stateCode, data:res.data.case_data})
             }).catch(error =>{
                 reject(error)
             })

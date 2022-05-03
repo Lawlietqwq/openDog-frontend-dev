@@ -85,7 +85,7 @@ import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'ComplexTable',
+  name: 'projectView',
   components: { Pagination },
   directives: { waves },
   data() {
@@ -278,7 +278,7 @@ export default {
       console.log("查询后", this.list);
     },
     caseList(row){
-        this.$router.push({name:'caseViews',params:{pid:row.pid}})
+        this.$router.push({name:'caseView',params:{pid:row.pid}})
     },
   }
 }

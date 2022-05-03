@@ -211,7 +211,7 @@ export const asyncRoutes = [
   {
     path: '/caseView',
     component: () => import('@/views/caseView/index'),
-    name: 'caseViews',
+    name: 'caseView',
   },
 
   {

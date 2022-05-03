@@ -80,7 +80,7 @@ import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'ComplexTable',
+  name: 'caseView',
   components: { Pagination },
   directives: { waves },
   data() {
