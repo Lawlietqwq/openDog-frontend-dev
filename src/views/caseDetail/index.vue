@@ -1,40 +1,81 @@
 <template>
-    <div style="display:flex;flex-direction:column;">
+    <div class="textbox" style="background:#00FF00">
         <div>
             <el-page-header @back="goBack" :content="caseInfo.caseName">
             </el-page-header>
         </div>
-        <div style="display:flex;">
-            <div></div>
-            <el-divider direction="vertical"></el-divider>
+        <div class="infobox">
             <div class="textbox">
-                <div class="cardImg">
-                    <svg-icon icon-class="phone">
-                </div>
-                <div class="dataInfo">
-                    <span></span>
-                </div>    
-                <div class="cardDuty"></div>
+                <div>Android版本号:{{DeviceInfo.OSName}}</div>
+                <div style="margin-top:10px;">{{AppInfo.package}}</div>
+                
             </div>
-            <div class="textbox" v-for="(value, name) in infoDisplay" :key="value">
-                <div class="cardImg">
-                    <svg-icon :icon-class="iconList[name]">
+            <el-divider direction="vertical"></el-divider>
+            <div class="infobox">
+                <div>
+                    <svg-icon icon-class="phone" class-name="icon-format"/>
                 </div>
-                <div class="dataInfo">
+                <div class="textbox">
+                    <span>
+                        <strong style="font-size:30px;">{{DeviceInfo.deviceName}}</strong>
+                    </span>
+                    <span>SerialNum:{{DeviceInfo.SerialNum}}</span>
+                    <span>OpenGL:{{DeviceInfo.OpenGL}}</span>
+                    <span>CPU:{{DeviceInfo.CPUInfo}}</span>
+                </div>
+            </div>
+            <div class="infobox" v-for="(value, name) in infoDisplay" :key="value">
+                <div class="cardImg">
+                    <svg-icon :icon-class="iconList[name]" class-name="icon-format"/>
+                </div>
+                <div class="textbox">
+                    <span>
+                        <strong style="font-size:25px;">{{name==='userName'?'创建者':'上传时间'}}</strong>
+                    </span>
                     <span>{{value}}</span>
                 </div>    
-                <div class="cardDuty"></div>
             </div>
+        </div>
+        <div>
+            <el-collapse v-model="activeNames" @change="initCharts">
+            <el-collapse-item title="概览" name="general">
+                <div class="infobox">
+                    <div class="textbox" v-for="(value, name) in Avg" :key="name">
+                        <span>{{name}}</span>
+                        <span style="font-size:25px;"><strong>{{value}}</strong></span>
+                    </div>
+                </div>    
+            </el-collapse-item>
+            <el-collapse-item title="FPS" name="FPSList">
+                <div ref="FPSList"></div>
+            </el-collapse-item>
+            <el-collapse-item title="CPU" name="CPU">
+                <div ref="CPUUsage"></div>
+                <div ref="CPUClock"></div>
+            </el-collapse-item>
+            <el-collapse-item title="Memory" name="memoryData">
+                <div ref="memoryData"></div>
+            </el-collapse-item>
+            <el-collapse-item title="Temperature" name="temperature">
+                <div ref="temperature"></div>
+            </el-collapse-item>
+            </el-collapse>
         </div>
     </div>
 </template>
 
 <script>
+import waves from '@/directive/waves' // waves directive
+import { param } from '@/utils';
+import data from '../pdf/content';
+  const echarts = require('echarts');
   export default {
     name:'caseDetail',
     directives: { waves },
     data(){
         return{
+            activeNames:['general'],
+            Num:[],
             AppInfo:{
                 dateTime:'',
                 package:'',
@@ -43,13 +84,13 @@
                 SerialNum:'',
                 OSName:'',
                 OpenGL:'',
-                serialName:'',
+                deviceName:'',
                 CPUInfo:'',
             },
             Avg:{
-                avgFps:0,
-                peakMemory:0,
-                avgMemory:0,
+                'Avg[FPS]':0,
+                'Peak(Memory)[MB]':0,
+                'Avg(Memory)[MB]':0,
             },
             FPSList:[],
             //MB
@@ -101,38 +142,35 @@
                 uploadTime:'upload'
             },
             infoDisplay:{
-                userName:this.$store.getters.userName,
+                userName:this.$store.getters.name,
                 uploadTime:'',
-            }
+            },
         }
     },
     created(){
-        const loading = this.$loading({
-          lock: true,
-          text: 'Loading',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.7)'
-        });
-        this.caseId = this.$route.params.caseId
-        this.$store.dispatch('case/get_case_detail',{caseId:[].push(this.caseId)}).then(res =>{
+        this.openFullScreen()
+        this.caseInfo.caseId = this.$route.params.caseId
+        this.$store.dispatch('case/get_case_detail',{caseId:Array.of(this.caseInfo.caseId)}).then(res =>{
             const {stateCode, data} = res
             if(stateCode===1000){
-                this.setCaseInfo(caseId, data.caseName, data.comment)
+                this.setCaseInfo(data.caseId, data.caseName, data.comment)
                 this.infoDisplay.uploadTime = data.createdTime
             }
         })
 
-        this.$store.dispatch('case/get_case_data',{caseId:this.caseId}).then(res => {
+        this.$store.dispatch('case/get_case_data',this.caseInfo.caseId).then(res => {
             const{ stateCode, data } = res
-            if(stateCode===1000 && !data){
+            if(stateCode===1000 && data){
                 this.getData(data)
             }
         })
-        loading.close()
+        this.closeFullScreen()
     },
+
     methods: {
       
         getData(data){
+            this.setNum(data)
             this.setAppInfo(data)
             this.setDeviceInfo(data)
             this.setAvg(data)
@@ -148,6 +186,9 @@
             this.caseInfo.caseName = caseName
             this.caseInfo.comment = comment
         },
+        setNum(data){
+            this.Num = data.Data.Table.Num
+        },
         setAppInfo(data){
             this.AppInfo.dateTime = data.AppInfo.Date
             this.AppInfo.package = data.AppInfo.Package
@@ -157,13 +198,13 @@
             this.DeviceInfo.OSName = data.DeviceInfo['OS']
             this.DeviceInfo.OpenGL = data.DeviceInfo.OpenGL
             this.DeviceInfo.CPUInfo = data.DeviceInfo['CPU Info']
-            this.DeviceInfo.OpenGL = data.DeviceInfo['Device Name']
+            this.DeviceInfo.deviceName = data.DeviceInfo['Device Name']
 
         },
         setAvg(data){
-            this.Avg.avgFps = data.Data.Avg['Avg(FPS)']
-            this.Avg.peakMemory = data.Data.Avg['Peak(Memory)[MB]']
-            this.Avg.avgMemory = data.Data.Avg['Avg(Memory)[MB]']
+            this.Avg['Avg[FPS]'] = data.Data.Avg['Avg(FPS)']
+            this.Avg['Peak(Memory)[MB]'] = data.Data.Avg['Peak(Memory)[MB]']
+            this.Avg['Avg(Memory)[MB]'] = data.Data.Avg['Avg(Memory)[MB]']
 
         },
         setFPSList(data){
@@ -209,16 +250,114 @@
         },
 
         goBack() {
-            this.$router.push({path:'caseView'})
-        }
+            this.$router.push({name:'caseView', params:{pid:this.$store.getters.pid}})
+        },
+
+        //Loading加载
+        openFullScreen() {
+            const loading = this.$loading({
+            lock: true,
+            text: 'Loading',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+            });
+            return loading;
+        },
+
+        closeFullScreen(loading){
+            loading.close();
+        },
+
+        dataToSeries(data){
+            let series = []
+            for(let key in data){
+                series.push({
+                    name: key,
+                    type: 'line',
+                    smooth: true,
+                    data: data[key],
+                })
+            }
+            return series
+        },
+
+
+        initCharts(chartName){
+            this.openFullScreen()
+            if(chartName == 'CPU'){
+                this.initSingleCharts('CPUUsage')
+                this.initSingleCharts('CPUClock')
+            }
+            else if(chartName != 'general'){
+                this.initSingleCharts(chartName)
+            }
+            this.closeFullScreen()
+        },
+        initSingleCharts(chartName){
+
+                    let myChart = echarts.init(this.$refs[chartName]);
+                    // 绘制图表
+                    let data = this[chartName]
+                    for(i in data){
+                        
+                    }
+                    myChart.setOption({
+                    title: { text: chartName },
+                    xAxis: {
+                        data: this.Num
+                    },
+                    yAxis: {
+                        type:'value',
+                        scale:true
+                    },
+                    grid: [{left: '5%', right: '5%', bottom: '35%'}, {left: '5%', right: '5%', top: '70%', bottom: '15%'}],
+                    series: this.dataToSeries(data),
+                    dataZoom: [{
+                        type: 'slider', top: '93%', start: 0, end: 100, textStyle: {color: '#8392A5'},
+                        handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                        handleSize: '80%',
+                        dataBackground: {areaStyle: {color: '#8392A5'}, lineStyle: {opacity: 0.8, color: '#8392A5'}},
+                        handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)', shadowOffsetX: 2,
+                        shadowOffsetY: 2
+                        }}, 
+                        {show: true, xAxisIndex: 0, type: 'inside', top: '90%', start: 0, end: 100}
+                    ],
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                        type: 'cross'
+                        }
+                    },
+                    });
+                }
+
+            
+
     }
   }
 </script>
 
+
 <style scoped>
     .textbox{
         margin-left: 10px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-around;
     }
 
+    .infobox{
+        display:flex;
+        justify-content:space-around;
+    }
 
+    .icon-format{
+        font-size: 60px;
+        margin: auto;
+    }
+    /* .textbox{
+        display:flex;
+        flex-direction:flex;
+    } */
 </style>

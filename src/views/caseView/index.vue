@@ -119,9 +119,7 @@ export default {
   methods: {
     getList(current_pid) {
       this.listLoading = true
-      console.log('pid',current_pid)
       this.$store.dispatch('case/select_project_case',current_pid).then(res => {
-          console.log('asdasdads',res)
           let {stateCode, data} = res
           if(stateCode==1000){
             data = data.map(value => {
@@ -190,6 +188,7 @@ export default {
         if (valid) {
           const casetInfo = {
               caseId:this.temp.caseId,
+              taskId:0,
               caseName:this.temp.caseName,
               comment:this.temp.comment,
             }

@@ -275,7 +275,6 @@ export default {
         }
       });
       this.list = searchData;
-      console.log("查询后", this.list);
     },
     caseList(row){
         this.$router.push({name:'caseView',params:{pid:row.pid}})

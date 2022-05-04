@@ -6,7 +6,6 @@ const state = {
     pid: -1,
     projectName: '',
     caseName:'',
-    current_cid:-1,
 }
 
 const mutations = {
@@ -26,9 +25,6 @@ const mutations = {
         state.caseName = caseName
     },
 
-    SET_CURRENT_CID: (state, current_cid) => {
-        state.current_cid = current_cid
-    }
 }
 
 const actions = {
@@ -74,29 +70,26 @@ const actions = {
         return new Promise((resolve, reject) => {
             caseAPI.get_case_detail(JSON.stringify(data)).then(res => {
                 const stateCode = res.state
-                const {caseId, projectId, accessState} = res.data.success
                 if(stateCode==1000){
+                    const {caseId, projectid, accessState} = res.data.success[0]
                     commit('SET_CID', caseId)
-                    commit('SET_PID', projectId)
+                    commit('SET_PID', projectid)
                 }
-                resolve({stateCode:stateCode, data:res.data.success})
+                resolve({stateCode:stateCode, data:res.data.success[0]})
             }).catch(error =>{
                 reject(error)
             })
         })
     },
 
-    get_case_data({ commit }, caseId , caseName){
+    get_case_data({ commit }, caseId){
         return new Promise((resolve, reject) => {
             caseAPI.get_case_data(JSON.stringify({caseId:caseId})).then(res => {
                 const stateCode = res.state
-                const {caseId, projectId, accessState} = res.data.success
                 if(stateCode==1000){
                     // commit('SET_CID', caseId)
                     // commit('SET_PID', projectId)
-                    commit('SET_CID',caseId)
-                    commit('SET_CNAME',caseName)
-                    commit('SET_CURRENT_ID',caseId)
+                    commit('SET_CID', caseId)
                 }
                 resolve({stateCode:stateCode, data:res.data.case_data})
             }).catch(error =>{
