@@ -1,7 +1,7 @@
 <template>
-    <div class="textbox" style="background:#00FF00">
-        <div>
-            <el-page-header @back="goBack" :content="caseInfo.caseName">
+    <div class="textbox">
+        <div style="height:60px;">
+            <el-page-header style="height:100%;" @back="goBack" :content="caseInfo.caseName">
             </el-page-header>
         </div>
         <div class="infobox">
@@ -36,7 +36,7 @@
                 </div>    
             </div>
         </div>
-        <div>
+        <div style="width:100%;">
             <el-collapse v-model="activeNames" @change="initCharts">
             <el-collapse-item title="概览" name="general">
                 <div class="infobox">
@@ -47,17 +47,17 @@
                 </div>    
             </el-collapse-item>
             <el-collapse-item title="FPS" name="FPSList">
-                <div ref="FPSList"></div>
+                <div class="chartBox" ref="FPSList"></div>
             </el-collapse-item>
             <el-collapse-item title="CPU" name="CPU">
-                <div ref="CPUUsage"></div>
-                <div ref="CPUClock"></div>
+                <div class="chartBox" ref="CPUUsage"></div>
+                <div style="margin-top:15px" class="chartBox" ref="CPUClock"></div>
             </el-collapse-item>
             <el-collapse-item title="Memory" name="memoryData">
-                <div ref="memoryData"></div>
+                <div class="chartBox" ref="memoryData"></div>
             </el-collapse-item>
             <el-collapse-item title="Temperature" name="temperature">
-                <div ref="temperature"></div>
+                <div class="chartBox" ref="temperature"></div>
             </el-collapse-item>
             </el-collapse>
         </div>
@@ -66,10 +66,8 @@
 
 <script>
 import waves from '@/directive/waves' // waves directive
-import { param } from '@/utils';
-import data from '../pdf/content';
-  const echarts = require('echarts');
-  export default {
+import * as echarts from 'echarts'
+export default {
     name:'caseDetail',
     directives: { waves },
     data(){
@@ -111,7 +109,7 @@ import data from '../pdf/content';
                 BatteryTemp:[],
             },
             //MHz
-            cpuClock:{
+            CPUClock:{
                 CPUClock0:[],
                 CPUClock1:[],
                 CPUClock2:[],
@@ -122,7 +120,7 @@ import data from '../pdf/content';
                 CPUClock7:[],
             },
             //%
-            cpuUsage:{
+            CPUUsage:{
                 CPUUsage0:[],
                 CPUUsage1:[],
                 CPUUsage2:[],
@@ -145,6 +143,7 @@ import data from '../pdf/content';
                 userName:this.$store.getters.name,
                 uploadTime:'',
             },
+            echartState:{'FPSList':false, 'CPU':false, 'memoryData':false, 'temperature':false}
         }
     },
     created(){
@@ -164,7 +163,7 @@ import data from '../pdf/content';
                 this.getData(data)
             }
         })
-        this.closeFullScreen()
+        this.closeFullScreen(this.openFullScreen())
     },
 
     methods: {
@@ -177,8 +176,8 @@ import data from '../pdf/content';
             this.setFPSList(data)
             this.setMemoryData(data)
             this.setTemperature(data)
-            this.setCpuClock(data)
-            this.setCpuUsage(data)
+            this.setCPUClock(data)
+            this.setCPUUsage(data)
         },
 
         setCaseInfo(caseId, caseName, comment){
@@ -227,26 +226,26 @@ import data from '../pdf/content';
             this.temperature.BatteryTemp = data.Data.Table.BatteryTemp
         },
 
-        setCpuClock(data){
-            this.cpuClock.CPUClock0 = data.Data.Table['CPUClock0[MHz]']
-            this.cpuClock.CPUClock1 = data.Data.Table['CPUClock1[MHz]']
-            this.cpuClock.CPUClock2 = data.Data.Table['CPUClock2[MHz]']
-            this.cpuClock.CPUClock3 = data.Data.Table['CPUClock3[MHz]']
-            this.cpuClock.CPUClock4 = data.Data.Table['CPUClock4[MHz]']
-            this.cpuClock.CPUClock5 = data.Data.Table['CPUClock5[MHz]']
-            this.cpuClock.CPUClock6 = data.Data.Table['CPUClock6[MHz]']
-            this.cpuClock.CPUClock7 = data.Data.Table['CPUClock7[MHz]']
+        setCPUClock(data){
+            this.CPUClock.CPUClock0 = data.Data.Table['CPUClock0[MHz]']
+            this.CPUClock.CPUClock1 = data.Data.Table['CPUClock1[MHz]']
+            this.CPUClock.CPUClock2 = data.Data.Table['CPUClock2[MHz]']
+            this.CPUClock.CPUClock3 = data.Data.Table['CPUClock3[MHz]']
+            this.CPUClock.CPUClock4 = data.Data.Table['CPUClock4[MHz]']
+            this.CPUClock.CPUClock5 = data.Data.Table['CPUClock5[MHz]']
+            this.CPUClock.CPUClock6 = data.Data.Table['CPUClock6[MHz]']
+            this.CPUClock.CPUClock7 = data.Data.Table['CPUClock7[MHz]']
         },
 
-        setCpuUsage(data){
-            this.cpuUsage.CPUUsage0 = data.Data.Table['CPUUsage0[%]']
-            this.cpuUsage.CPUUsage1 = data.Data.Table['CPUUsage1[%]']
-            this.cpuUsage.CPUUsage2 = data.Data.Table['CPUUsage2[%]']
-            this.cpuUsage.CPUUsage3 = data.Data.Table['CPUUsage3[%]']
-            this.cpuUsage.CPUUsage4 = data.Data.Table['CPUUsage4[%]']
-            this.cpuUsage.CPUUsage5 = data.Data.Table['CPUUsage5[%]']
-            this.cpuUsage.CPUUsage6 = data.Data.Table['CPUUsage6[%]']
-            this.cpuUsage.CPUUsage7 = data.Data.Table['CPUUsage7[%]']
+        setCPUUsage(data){
+            this.CPUUsage.CPUUsage0 = data.Data.Table['CPUUsage0[%]']
+            this.CPUUsage.CPUUsage1 = data.Data.Table['CPUUsage1[%]']
+            this.CPUUsage.CPUUsage2 = data.Data.Table['CPUUsage2[%]']
+            this.CPUUsage.CPUUsage3 = data.Data.Table['CPUUsage3[%]']
+            this.CPUUsage.CPUUsage4 = data.Data.Table['CPUUsage4[%]']
+            this.CPUUsage.CPUUsage5 = data.Data.Table['CPUUsage5[%]']
+            this.CPUUsage.CPUUsage6 = data.Data.Table['CPUUsage6[%]']
+            this.CPUUsage.CPUUsage7 = data.Data.Table['CPUUsage7[%]']
         },
 
         goBack() {
@@ -280,60 +279,71 @@ import data from '../pdf/content';
             }
             return series
         },
+        listToSeries(chartName, data){
+            return {
+                name:chartName,
+                type: 'line',
+                smooth: true,
+                data:data,
+            }
+        },
 
-
-        initCharts(chartName){
+        initCharts(val){
             this.openFullScreen()
-            if(chartName == 'CPU'){
-                this.initSingleCharts('CPUUsage')
-                this.initSingleCharts('CPUClock')
+            let chartName = val.slice(-1)
+            if(!this.echartState[chartName]){
+                if(chartName == 'CPU'){
+                    this.initSingleCharts('CPUUsage')
+                    this.initSingleCharts('CPUClock')
+                }
+                else if(chartName != 'general'){
+                    this.initSingleCharts(chartName)
+                }
+                this.echartState[chartName] = true
             }
-            else if(chartName != 'general'){
-                this.initSingleCharts(chartName)
-            }
-            this.closeFullScreen()
+            this.closeFullScreen(this.openFullScreen())
         },
         initSingleCharts(chartName){
-
-                    let myChart = echarts.init(this.$refs[chartName]);
-                    // 绘制图表
-                    let data = this[chartName]
-                    for(i in data){
-                        
+            let myChart = echarts.init(this.$refs[chartName]);
+            // 绘制图表
+            let data = this[chartName]
+            if(chartName != 'FPSList'){
+                data = this.dataToSeries(data)
+            }
+            else{
+                data = this.listToSeries(chartName, data)
+            }
+            console.log('data',data)
+                myChart.setOption({
+                title: { text: chartName },
+                xAxis: {
+                    data: this.Num
+                },
+                yAxis: {
+                    type:'value',
+                    scale:true
+                },
+                grid: [{left: '5%', right: '5%', bottom: '20%'}],
+                series: data,
+                dataZoom: [{
+                    type: 'slider', top: '93%', start: 0, end: 100, textStyle: {color: '#8392A5'},
+                    handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                    handleSize: '80%',
+                    dataBackground: {areaStyle: {color: '#8392A5'}, lineStyle: {opacity: 0.8, color: '#8392A5'}},
+                    handleStyle: {
+                    color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)', shadowOffsetX: 2,
+                    shadowOffsetY: 2
+                    }}, 
+                    {show: true, xAxisIndex: 0, type: 'inside', top: '90%', start: 0, end: 100}
+                ],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                    type: 'cross'
                     }
-                    myChart.setOption({
-                    title: { text: chartName },
-                    xAxis: {
-                        data: this.Num
-                    },
-                    yAxis: {
-                        type:'value',
-                        scale:true
-                    },
-                    grid: [{left: '5%', right: '5%', bottom: '35%'}, {left: '5%', right: '5%', top: '70%', bottom: '15%'}],
-                    series: this.dataToSeries(data),
-                    dataZoom: [{
-                        type: 'slider', top: '93%', start: 0, end: 100, textStyle: {color: '#8392A5'},
-                        handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                        handleSize: '80%',
-                        dataBackground: {areaStyle: {color: '#8392A5'}, lineStyle: {opacity: 0.8, color: '#8392A5'}},
-                        handleStyle: {
-                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)', shadowOffsetX: 2,
-                        shadowOffsetY: 2
-                        }}, 
-                        {show: true, xAxisIndex: 0, type: 'inside', top: '90%', start: 0, end: 100}
-                    ],
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {
-                        type: 'cross'
-                        }
-                    },
-                    });
-                }
-
-            
-
+                },
+            });
+        }     
     }
   }
 </script>
@@ -356,8 +366,16 @@ import data from '../pdf/content';
         font-size: 60px;
         margin: auto;
     }
-    /* .textbox{
-        display:flex;
-        flex-direction:flex;
+    
+    .chartBox{
+        width:1500px;
+        height:500px;
+        align-self: center;
+    }
+
+    /* .el-collapse-item__content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     } */
 </style>
