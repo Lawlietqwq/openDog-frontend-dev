@@ -1,23 +1,30 @@
 <template>
     <div class="textbox">
-        <div style="height:60px;">
-            <el-page-header style="height:100%;" @back="goBack" :content="caseInfo.caseName">
-            </el-page-header>
-        </div>
-        <div class="infobox">
-            <div class="textbox">
-                <div>Android版本号:{{DeviceInfo.OSName}}</div>
-                <div style="margin-top:10px;">{{AppInfo.package}}</div>
-                
+        <el-container class="login">
+            <el-header>
+            <div style="width:100%;height:60px;background-color:#303133;
+                position: fixed !important;top: 0px;left: 0px;">
+                <el-page-header
+                @back="goBack"
+                :content="caseInfo.caseName"
+                >
+                </el-page-header>
             </div>
-            <el-divider direction="vertical"></el-divider>
-            <div class="infobox">
-                <div>
-                    <svg-icon icon-class="phone" class-name="icon-format"/>
+            </el-header>
+        </el-container>
+        <div class="infobox" style="margin-bottom:20px;">
+            <div class="infobox" style="margin-top:20px;">
+                <svg-icon icon-class="case" class-name="icon-format"/>
+                <div class="textbox" style="margin-left:20px;">
+                    <div>Android版本号:{{DeviceInfo.OSName}}</div>
+                    <div style="margin-top:10px;">{{AppInfo.package}}</div>
                 </div>
-                <div class="textbox">
+            </div>
+            <div class="infobox">
+                <svg-icon icon-class="phone" class-name="icon-format"/>
+                <div class="textbox" style="margin-left:20px;">
                     <span>
-                        <strong style="font-size:30px;">{{DeviceInfo.deviceName}}</strong>
+                        <strong style="font-size:25px;">{{DeviceInfo.deviceName}}</strong>
                     </span>
                     <span>SerialNum:{{DeviceInfo.SerialNum}}</span>
                     <span>OpenGL:{{DeviceInfo.OpenGL}}</span>
@@ -25,10 +32,8 @@
                 </div>
             </div>
             <div class="infobox" v-for="(value, name) in infoDisplay" :key="value">
-                <div class="cardImg">
-                    <svg-icon :icon-class="iconList[name]" class-name="icon-format"/>
-                </div>
-                <div class="textbox">
+                <svg-icon :icon-class="iconList[name]" class-name="icon-format"/>
+                <div class="textbox" style="margin-left:20px;">
                     <span>
                         <strong style="font-size:25px;">{{name==='userName'?'创建者':'上传时间'}}</strong>
                     </span>
@@ -36,7 +41,7 @@
                 </div>    
             </div>
         </div>
-        <div style="width:100%;">
+        <div class="collapse-box">
             <el-collapse v-model="activeNames" @change="initCharts">
             <el-collapse-item title="概览" name="general">
                 <div class="infobox">
@@ -46,17 +51,17 @@
                     </div>
                 </div>    
             </el-collapse-item>
-            <el-collapse-item title="FPS" name="FPSList">
+            <el-collapse-item class="chart-box" title="FPS" name="FPSList">
                 <div class="chartBox" ref="FPSList"></div>
             </el-collapse-item>
-            <el-collapse-item title="CPU" name="CPU">
+            <el-collapse-item class="chart-box2" title="CPU" name="CPU">
                 <div class="chartBox" ref="CPUUsage"></div>
                 <div style="margin-top:15px" class="chartBox" ref="CPUClock"></div>
             </el-collapse-item>
-            <el-collapse-item title="Memory" name="memoryData">
+            <el-collapse-item class="chart-box" title="Memory" name="memoryData">
                 <div class="chartBox" ref="memoryData"></div>
             </el-collapse-item>
-            <el-collapse-item title="Temperature" name="temperature">
+            <el-collapse-item class="chart-box" title="Temperature" name="temperature">
                 <div class="chartBox" ref="temperature"></div>
             </el-collapse-item>
             </el-collapse>
@@ -143,7 +148,7 @@ export default {
                 userName:this.$store.getters.name,
                 uploadTime:'',
             },
-            echartState:{'FPSList':false, 'CPU':false, 'memoryData':false, 'temperature':false}
+            echartState:{'general':true,'FPSList':false, 'CPU':false, 'memoryData':false, 'temperature':false}
         }
     },
     created(){
@@ -290,8 +295,10 @@ export default {
 
         initCharts(val){
             this.openFullScreen()
-            let chartName = val.slice(-1)
-            if(!this.echartState[chartName]){
+            let chartName = val[val.length-1]
+            console.log('cn',chartName)
+            console.log('val',val)
+            if(chartName && !this.echartState[chartName]){
                 if(chartName == 'CPU'){
                     this.initSingleCharts('CPUUsage')
                     this.initSingleCharts('CPUClock')
@@ -336,6 +343,8 @@ export default {
                     }}, 
                     {show: true, xAxisIndex: 0, type: 'inside', top: '90%', start: 0, end: 100}
                 ],
+                legend:{
+                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -349,7 +358,8 @@ export default {
 </script>
 
 
-<style scoped>
+<style lang='scss' scoped>
+
     .textbox{
         margin-left: 10px;
         display:flex;
@@ -371,11 +381,35 @@ export default {
         width:1500px;
         height:500px;
         align-self: center;
-    }
-
-    /* .el-collapse-item__content {
         display: flex;
         justify-content: center;
         align-items: center;
-    } */
+    }
+
+    .chart-box ::v-deep .el-collapse-item__content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .chart-box2 ::v-deep .el-collapse-item__content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .collapse-box ::v-deep .el-collapse-item__header {
+        border-bottom: 1px solid #2C8DF4;
+        font-size: 20px;
+        font-weight: 700;
+    }
+    .login ::v-deep .el-page-header {
+        color: white;
+        line-height: 60px;
+        margin-left: 20px;
+    }
+    .login ::v-deep .el-page-header__content {
+        color: white;
+    }
+
 </style>

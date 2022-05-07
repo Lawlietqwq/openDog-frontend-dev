@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">OpenDog</h3>
       </div>
 
       <el-form-item prop="username">
@@ -37,16 +37,17 @@
             autocomplete="on"
             @keyup.native="checkCapslock"
             @blur="capsTooltip = false"
-            @keyup.enter.native="handleLogin"
+            @keyup.enter.native="submit"
           />
           <span class="show-pwd" @click="showPwd">
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
         </el-form-item>
       </el-tooltip>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-      
+      <div>
+        <Vcode :show="isShow" @success="handleLogin" @close="close" />
+        <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="submit">登录</el-button>
+      </div>
       <div class="tips"  style="float:left;">              
         <el-button type="primary" @click="forgetPass">
           忘记密码
@@ -66,33 +67,19 @@
 <script>
 // import { validUsername } from '@/utils/validate'
 import SocialSign from './components/SocialSignin'
-
+import Vcode from "vue-puzzle-vcode"
 export default {
   name: 'Login',
-  components: { SocialSign },
+  components: { SocialSign, Vcode },
   data() {
-    // const validateUsername = (rule, value, callback) => {
-    //   if (!validUsername(value)) {
-    //     callback(new Error('Please enter the correct user name'))
-    //   } else {
-    //     callback()
-    //   }
-    // }
-    // const validatePassword = (rule, value, callback) => {
-    //   if (value.length < 6) {
-    //     callback(new Error('The password can not be less than 6 digits'))
-    //   } else {
-    //     callback()
-    //   }
-    // }
+
     return {
       loginForm: {
         username: '',
         password: ''
       },
       loginRules: {
-        // username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        // password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+
         username: [{ required: true, trigger: 'blur'}],
         password: [{ required: true, trigger: 'blur'}]
       },
@@ -101,7 +88,8 @@ export default {
       loading: false,
       showDialog: false,
       redirect: undefined,
-      otherQuery: {}
+      otherQuery: {},
+      isShow: false,
     }
   },
   watch: {
@@ -116,9 +104,9 @@ export default {
       immediate: true
     }
   },
-  created() {
-    // window.addEventListener('storage', this.afterQRScan)
-  },
+  // created() {
+  //   window.addEventListener('storage', this.afterQRScan)
+  // },
   mounted() {
     if (this.loginForm.username === '') {
       this.$refs.username.focus()
@@ -144,10 +132,21 @@ export default {
         this.$refs.password.focus()
       })
     },
+
+    submit(){
+      this.isShow = true
+    },
+    
+    close(){
+      this.isShow = false
+    },
+
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
+        this.isShow = false
         if (valid) {
           this.loading = true
+          this.isShow = true
           this.$store.dispatch('user/login', this.loginForm)
             .then(stateCode => {
               console.log(stateCode)
